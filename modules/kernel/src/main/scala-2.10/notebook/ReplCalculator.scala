@@ -168,7 +168,7 @@ class ReplCalculator(
         val (jobsInQueueToKill, nonAffectedJobs) = queue.partition { case (_, ExecuteRequest(cellIdInQueue, _, _)) =>
           cellIdInQueue == killCellId
         }
-        log.debug(s"Canceling $killCellId jobs still in queue (if any):\n $jobsInQueueToKill")
+        // log.debug(s"Canceling $killCellId jobs still in queue (if any):\n $jobsInQueueToKill")
         queue = nonAffectedJobs
 
         log.debug(s"Interrupting the cell: $killCellId")
@@ -177,10 +177,10 @@ class ReplCalculator(
         if (jobsInQueueToKill.isEmpty && repl.sparkContextAvailable) {
           log.info(s"Killing job Group $jobGroupId")
           val thisSender = sender()
-          repl.evaluate(
-            s"""globalScope.sparkContext.cancelJobGroup("${jobGroupId}")""",
-            msg => thisSender ! StreamResponse(msg, "stdout")
-          )
+//          repl.evaluate(
+//            s"""globalScope.sparkContext.cancelJobGroup("${jobGroupId}")""",
+//            msg => thisSender ! StreamResponse(msg, "stdout")
+//          )
         }
 
         // StreamResponse shows error msg
@@ -193,12 +193,12 @@ class ReplCalculator(
         val thisSender = sender()
         log.debug("Clearing the queue of size " + queue.size)
         queue = scala.collection.immutable.Queue.empty
-        repl.evaluate(
-          "globalScope.sparkContext.cancelAllJobs()",
-          msg => {
-            thisSender ! StreamResponse(msg, "stdout")
-          }
-        )
+//        repl.evaluate(
+//          "globalScope.sparkContext.cancelAllJobs()",
+//          msg => {
+//            thisSender ! StreamResponse(msg, "stdout")
+//          }
+//        )
     }
 
     private var commandInterpreters = combineIntepreters(command_interpreters.defaultInterpreters)
@@ -214,16 +214,12 @@ class ReplCalculator(
         val cellId = er.cellId
         def replEvaluate(code:String, cellId:String) = {
           val cellResult = try {
-           repl.evaluate(s"""
-              |globalScope.sparkContext.setJobGroup("${JobTracking.jobGroupId(cellId)}", "${JobTracking.jobDescription(code, start)}")
-              |$code
-              """.stripMargin,
+           repl.evaluate(s"""$code""",
               msg => thisSender ! StreamResponse(msg, "stdout"),
               nameDefinition => thisSender ! nameDefinition
             )
           }
           finally {
-             repl.evaluate("globalScope.sparkContext.clearJobGroup()")
           }
           cellResult
         }

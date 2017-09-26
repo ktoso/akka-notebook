@@ -1,6 +1,7 @@
 import sbt._
 
 object Dependencies {
+
   val mesosVersion = sys.props.getOrElse("mesos.version", "0.26.0") //todo 1.0.0
 
   val scalaTest = "org.scalatest" %% "scalatest" % "3.0.1" % "test"
@@ -65,10 +66,16 @@ object Dependencies {
   val defaultHadoopVersion = sys.props.getOrElse("hadoop.version", "2.7.3")
 
   val akkaGroup = if (defaultHadoopVersion.startsWith("1")) "org.spark-project.akka" else "com.typesafe.akka"
-  val akkaVersion = if (defaultHadoopVersion.startsWith("1")) "2.3.4-spark" else "2.4.18"
-  val akka = akkaGroup %% "akka-actor" % akkaVersion
-  val akkaRemote = akkaGroup %% "akka-remote" % akkaVersion
-  val akkaSlf4j = akkaGroup %% "akka-slf4j" % akkaVersion
+  val akkaVersion = "2.4.20"
+  val akkaHttpVersion = "10.0.9"
+  val akkaActor   = akkaGroup %% "akka-actor" % akkaVersion
+  val akkaCluster = akkaGroup %% "akka-cluster" % akkaVersion
+  val akkaClusterSharding = akkaGroup %% "akka-cluster-sharding" % akkaVersion
+  val akkaPersistence     = akkaGroup %% "akka-persistence"      % akkaVersion
+  val akkaStream  = akkaGroup %% "akka-stream" % akkaVersion
+
+  val akkaHttp    = akkaGroup %% "akka-http" % akkaHttpVersion
+  val akkaSlf4j   = akkaGroup %% "akka-slf4j" % akkaVersion
 
   val scala_2_1X = "2\\.1([0-9])\\.[0-9]+.*".r
   val spark_X_Y = "[a-zA-Z]*([0-9]+)\\.([0-9]+)\\.([0-9]+).*".r
@@ -105,7 +112,7 @@ object Dependencies {
       ExclusionRule("org.apache.ivy", "ivy")
     )
 
-  val defaultWithHive = sys.props.getOrElse("with.hive", "false").toBoolean
+  val defaultWithAkka = sys.props.getOrElse("with.akka", "false").toBoolean
 
   def sparkHive(v: String) = "org.apache.spark" %% "spark-hive" % v excludeAll(
     ExclusionRule("org.apache.hadoop"),
@@ -114,6 +121,17 @@ object Dependencies {
     ExclusionRule("javax.servlet", "javax.servlet-api"),
     ExclusionRule("org.mortbay.jetty", "servlet-api")
   )
+
+  def akkaDeps(v: String): Seq[ModuleID] =
+    Seq(
+      "com.typesafe.akka" % "akka-actor" % v,
+      "com.typesafe.akka" % "akka-stream" % v
+    )
+  def akkaHttpDeps(v: String): Seq[ModuleID] =
+    Seq(
+      "com.typesafe.akka" % "akka-http" % v
+    )
+  
   def sparkRepl(v: String) = "org.apache.spark" %% "spark-repl" % v excludeAll (
       ExclusionRule("org.apache.hadoop"),
       ExclusionRule("javax.servlet", "servlet-api"),

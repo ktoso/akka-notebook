@@ -210,8 +210,10 @@ libraryDependencies += scalaTest
 routesGenerator := StaticRoutesGenerator
 
 libraryDependencies ++= List(
-  akka,
-  akkaRemote,
+  akkaActor,
+  akkaCluster,
+  akkaStream,
+  akkaHttp,
   akkaSlf4j,
   cache,
   commonsIO,
@@ -331,13 +333,17 @@ lazy val subprocess = Project(id="subprocess", base=file("modules/subprocess"))
   .settings(
     libraryDependencies ++= {
       Seq(
-        akka,
-        akkaRemote,
+        akkaActor,
+        akkaCluster,
+        akkaStream,
+        akkaHttp,
+        akkaSlf4j,
+        akkaClusterSharding,
+        akkaPersistence,
         akkaSlf4j,
         commonsIO,
         commonsExec,
-        log4j,
-        hadoopClient(defaultHadoopVersion)
+        log4j
       )
     }
   )
@@ -353,7 +359,13 @@ lazy val observable = Project(id = "observable", base = file("modules/observable
   .dependsOn(sparkNotebookCore)
   .settings(
     libraryDependencies ++= Seq(
-      akkaRemote,
+      akkaActor,
+      akkaCluster,
+      akkaClusterSharding,
+      akkaPersistence,
+      akkaStream,
+      akkaHttp,
+      akkaSlf4j,
       akkaSlf4j,
       slf4jLog4j,
       rxScala
@@ -371,7 +383,13 @@ lazy val common = Project(id = "common", base = file("modules/common"))
   )
   .settings(
     libraryDependencies ++= Seq(
-      akka,
+      akkaActor,
+      akkaCluster,
+      akkaClusterSharding,
+      akkaPersistence,
+      akkaStream,
+      akkaHttp,
+      akkaSlf4j,
       log4j
     ),
     libraryDependencies += scalaTest,
@@ -399,7 +417,7 @@ lazy val spark = Project(id = "spark", base = file("modules/spark"))
   )
   .settings(
     libraryDependencies ++= Seq(
-      akkaRemote,
+      akkaCluster,
       akkaSlf4j,
       slf4jLog4j,
       commonsIO
@@ -438,7 +456,8 @@ lazy val kernel = Project(id = "kernel", base = file("modules/kernel"))
   .dependsOn(common, sbtDependencyManager, subprocess, observable, spark)
   .settings(
     libraryDependencies ++= Seq(
-      akkaRemote,
+      akkaCluster,
+      akkaHttp,
       akkaSlf4j,
       slf4jLog4j,
       commonsIO

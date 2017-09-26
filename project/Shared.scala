@@ -12,6 +12,8 @@ object Shared {
   lazy val jlineDef = SettingKey[(String, String)]("x-jline-def")
 
   lazy val withHive = SettingKey[Boolean]("x-with-hive")
+  
+  lazy val withAkka = SettingKey[Boolean]("x-with-hive")
 
   lazy val sharedSettings: Seq[Def.Setting[_]] = Seq(
     publishArtifact in Test := false,
@@ -27,7 +29,8 @@ object Shared {
     } else {
       ("jline", "2.12")
     }),
-    withHive := defaultWithHive,
+    withHive := false,
+    withAkka := true,
     libraryDependencies += guava
   )
 
@@ -43,6 +46,11 @@ object Shared {
     libraryDependencies <++= (withHive, sparkVersion) { (wh, sv) =>
       if (wh) List(sparkHive(sv)) else Nil
     }
+  )
+
+  val akka: Seq[Def.Setting[_]] = Seq(
+    libraryDependencies ++= 
+      (akkaDeps("2.5.4") ++ akkaHttpDeps("10.0.9"))
   )
 
   val yarnWebProxy: Seq[Def.Setting[_]] = Seq(
